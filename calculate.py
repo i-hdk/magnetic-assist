@@ -1,6 +1,8 @@
 #caps lock is constant
 #x axis is where the magnets are line up on, z is up down 
 
+import numpy as np
+
 PENDULUM_MASS = 16.53 #g, includes magnet + hanging mass
 STRING_LENGTH = 15 #cm
 HOVER_HEIGHT = 3 #cm, height of magnet above ground when at rest & no magnets underneath
@@ -15,10 +17,11 @@ Y_LOWER_BOUND = -4
 Y_UPPER_BOUND = 4
 Z_LOWER_BOUND = 0
 Z_UPPER_BOUND = 25
-ITERATION_STEP = 0.1
+ITERATION_STEP = 1 #final should be around .1, big num for debug/testing only
 
 #iterate across x,y,z
-#x: -10 to 10, y: -4 to 4, z: 0 to 25
+for x in np.linspace(X_LOWER_BOUND,X_UPPER_BOUND, num = int((X_UPPER_BOUND-X_LOWER_BOUND)/ITERATION_STEP)+1):
+    for y in np.linspace(Y_LOWER_BOUND,Y_UPPER_BOUND, num = int((Y_UPPER_BOUND-Y_LOWER_BOUND)/ITERATION_STEP)+1):
+        for z in np.linspace(Z_LOWER_BOUND,Z_UPPER_BOUND, num = int((Z_UPPER_BOUND-Z_LOWER_BOUND)/ITERATION_STEP)+1):
+            print(x,y,z)
 
-for x in range(X_LOWER_BOUND,X_UPPER_BOUND+1,ITERATION_STEP):
-    print(x)
