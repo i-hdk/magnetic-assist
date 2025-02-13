@@ -17,11 +17,10 @@ Y_LOWER_BOUND = -4
 Y_UPPER_BOUND = 4
 Z_LOWER_BOUND = 0
 Z_UPPER_BOUND = 25
+DEGREES_LOWER_BOUND = -90 #left (towards -x side) and 0 points to the bottom middle
+DEGREES_UPPER_BOUND = 90
 ITERATION_STEP = 1 #final should be around .1, big num for debug/testing only
-
-#iterate across x,y,z
-for x in np.linspace(X_LOWER_BOUND,X_UPPER_BOUND, num = int((X_UPPER_BOUND-X_LOWER_BOUND)/ITERATION_STEP)+1):
-    for y in np.linspace(Y_LOWER_BOUND,Y_UPPER_BOUND, num = int((Y_UPPER_BOUND-Y_LOWER_BOUND)/ITERATION_STEP)+1):
-        for z in np.linspace(Z_LOWER_BOUND,Z_UPPER_BOUND, num = int((Z_UPPER_BOUND-Z_LOWER_BOUND)/ITERATION_STEP)+1):
-            print(x,y,z)
+            
+for deg in np.linspace(DEGREES_LOWER_BOUND,DEGREES_UPPER_BOUND, num = int((DEGREES_UPPER_BOUND-DEGREES_LOWER_BOUND)/ITERATION_STEP)+1):
+    print(deg)    
 
