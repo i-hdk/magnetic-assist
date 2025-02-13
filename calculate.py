@@ -26,12 +26,17 @@ def degreeToCoordinate (deg)->tuple:
     z = HOVER_HEIGHT+STRING_LENGTH-math.cos(deg)*STRING_LENGTH
     y = 0 #assuming one directional pendulum
     return (x,y,z)
+
+def calculateMagneticPotentialEnergy ((x,y,z))->float:
+    
   
 #iterate deg bc assuming one directional pendulum        
 for deg in np.linspace(DEGREES_LOWER_BOUND,DEGREES_UPPER_BOUND, num = int((DEGREES_UPPER_BOUND-DEGREES_LOWER_BOUND)/ITERATION_STEP)+1):
     print(deg)    
     print(degreeToCoordinate(deg))
-    #find coordinate at that deg
-       
+    (magnet_x,magnet_y,magnet_z) = degreeToCoordinate(deg)
     
+    gravitational_potential_energy = PENDULUM_MASS*GRAVITY_ACCELERATION*magnet_z
+    kinetic_energy = 0
+    magnetic_potential_energy = calculateMagneticPotentialEnergy()
 
