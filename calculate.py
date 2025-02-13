@@ -1,6 +1,6 @@
 #caps lock is constant
 #x axis is where the magnets are line up on, z is up down 
-
+import math
 import numpy as np
 
 PENDULUM_MASS = 16.53 #g, includes magnet + hanging mass
@@ -20,7 +20,18 @@ Z_UPPER_BOUND = 25
 DEGREES_LOWER_BOUND = -90 #left (towards -x side) and 0 points to the bottom middle
 DEGREES_UPPER_BOUND = 90
 ITERATION_STEP = 1 #final should be around .1, big num for debug/testing only
-            
+
+def degreeToCoordinate (deg)->tuple:
+    x = math.sin(deg)*STRING_LENGTH
+    z = HOVER_HEIGHT+STRING_LENGTH-math.cos(deg)*STRING_LENGTH
+    y = 0 #assuming one directional pendulum
+    return (x,y,z)
+  
+#iterate deg bc assuming one directional pendulum        
 for deg in np.linspace(DEGREES_LOWER_BOUND,DEGREES_UPPER_BOUND, num = int((DEGREES_UPPER_BOUND-DEGREES_LOWER_BOUND)/ITERATION_STEP)+1):
     print(deg)    
+    print(degreeToCoordinate(deg))
+    #find coordinate at that deg
+       
+    
 
