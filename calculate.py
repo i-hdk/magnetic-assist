@@ -3,12 +3,14 @@
 import math
 import numpy as np
 
-PENDULUM_MASS = 16.53 #g, includes magnet + hanging mass
-STRING_LENGTH = 15 #cm
-HOVER_HEIGHT = 3 #cm, height of magnet above ground when at rest & no magnets underneath
+PENDULUM_MASS = 0.001653 #kg, includes magnet + hanging mass
+STRING_LENGTH = 0.15 #m
+HOVER_HEIGHT = 0.03 #m, height of magnet above ground when at rest & no magnets underneath
 GRAVITY_ACCELERATION = 9.81 #m/s^2
 DIPOLE_MOMENT = 1.2 #Am^2 guessed
 MAGNET_SIZE = 0.9 #cm
+MU_NAUGHT = 4*math.pi*1e-7 
+MAGNET_DISTANCE_FROM_ORIGIN = 0.025 #m
 
 #iteration constants (cm)
 X_LOWER_BOUND = -10
@@ -19,7 +21,7 @@ Z_LOWER_BOUND = 0
 Z_UPPER_BOUND = 25
 DEGREES_LOWER_BOUND = -90 #left (towards -x side) and 0 points to the bottom middle
 DEGREES_UPPER_BOUND = 90
-ITERATION_STEP = 1 #final should be around .1, big num for debug/testing only
+ITERATION_STEP = 1 #final should be around .1, big num for debug only
 
 def degreeToCoordinate (deg)->tuple:
     x = math.sin(deg)*STRING_LENGTH
@@ -27,16 +29,50 @@ def degreeToCoordinate (deg)->tuple:
     y = 0 #assuming one directional pendulum
     return (x,y,z)
 
-def calculateMagneticPotentialEnergy ((x,y,z))->float:
-    
+def calculateDipole(x,y,z,d=DIPOLE_MOMENT)->np.ndarray:
+    pendulum_string = np.array([0-x,0-y,HOVER_HEIGHT+STRING_LENGTH-z]) #direction from magnet to pivot
+    unit = pendulum_string/np.linalg.norm(pendulum_string)
+    return unit*d
+
+#relative to base magnet or field producing dipole
+def calculateR(bx,by,bz,x,y,z)->tuple:
+    return (x-bx,y-by,z-bz)
+
+def calculateMagneticField(mx,my,mz,r)->np.ndarray:
+    m = np.array([mx,my,mz])
+    r = np.array([r[0],r[1],r[2]])
+    return MU_NAUGHT/(4*math.pi)*(3*np.dot(m,r)*r-m)/(np.linalg.norm(r)**3)
+
+def calculateMagneticPotentialEnergy (x,y,z)->float:
+    b_left = calculateMagneticField(0,0,DIPOLE_MOMENT,calculateR(-MAGNET_DISTANCE_FROM_ORIGIN,0,0,x,y,z))
+    b_right = calculateMagneticField(0,0,DIPOLE_MOMENT,calculateR(MAGNET_DISTANCE_FROM_ORIGIN,0,0,x,y,z))
+    dipole = calculateDipole(x,y,z)
+    return np.dot(-dipole,b_left) + np.dot(-dipole,b_right) #is this even in joules
+
   
+min_energy = 0
+first_iteration = True
+best_location = (0,0,0)
+
 #iterate deg bc assuming one directional pendulum        
 for deg in np.linspace(DEGREES_LOWER_BOUND,DEGREES_UPPER_BOUND, num = int((DEGREES_UPPER_BOUND-DEGREES_LOWER_BOUND)/ITERATION_STEP)+1):
     print(deg)    
     print(degreeToCoordinate(deg))
-    (magnet_x,magnet_y,magnet_z) = degreeToCoordinate(deg)
     
+    (magnet_x,magnet_y,magnet_z) = degreeToCoordinate(deg)   
     gravitational_potential_energy = PENDULUM_MASS*GRAVITY_ACCELERATION*magnet_z
     kinetic_energy = 0
-    magnetic_potential_energy = calculateMagneticPotentialEnergy()
+    magnetic_potential_energy = calculateMagneticPotentialEnergy(magnet_x,magnet_y,magnet_z)
+    energy = gravitational_potential_energy+kinetic_energy+magnetic_potential_energy
+    
+    if first_iteration:
+        min_energy = energy
+        best_location = (magnet_x,magnet_y,magnet_z)
+        first_iteration = False
+    if energy<min_energy:
+        min_energy = energy
+        best_location = (magnet_x,magnet_y,magnet_z)
+        
+print(best_location)
+    
 
