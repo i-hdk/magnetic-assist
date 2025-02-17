@@ -22,7 +22,13 @@ Z_LOWER_BOUND = 0
 Z_UPPER_BOUND = 25
 DEGREES_LOWER_BOUND = -90 #left (towards -x side) and 0 points to the bottom middle
 DEGREES_UPPER_BOUND = 90
-ITERATION_STEP = 5 #final should be around .1, big num for debug only
+ITERATION_STEP = 1 #final should be around .1, big num for debug only
+
+def normalize(v):
+    norm = np.linalg.norm(v)
+    if norm == 0: 
+       return v
+    return v / norm
 
 def degreeToCoordinate (deg)->tuple:
     x = math.sin(math.radians(deg))*STRING_LENGTH
@@ -42,15 +48,18 @@ def calculateR(bx,by,bz,x,y,z)->tuple:
 def calculateMagneticField(mx,my,mz,r)->np.ndarray:
     m = np.array([mx,my,mz])
     r = np.array([r[0],r[1],r[2]])
-    return MU_NAUGHT/(4*math.pi)*(3*np.dot(m,r)*r-m)/(np.linalg.norm(r)**3)
+    return MU_NAUGHT/(4*math.pi)*(3*np.dot(m,normalize(r))*normalize(r)-m)/(np.linalg.norm(r)**3)
 
 def calculateMagneticPotentialEnergy (x,y,z)->float:
     b_left = calculateMagneticField(0,0,DIPOLE_MOMENT,calculateR(-MAGNET_DISTANCE_FROM_ORIGIN,0,0,x,y,z))
+    #print("left magnet field",b_left)
     b_right = calculateMagneticField(0,0,DIPOLE_MOMENT,calculateR(MAGNET_DISTANCE_FROM_ORIGIN,0,0,x,y,z))
+    #print("right magnet field",b_right)
+    #print("r", calculateR(MAGNET_DISTANCE_FROM_ORIGIN,0,0,x,y,z))
     dipole = calculateDipole(x,y,z)
     return np.dot(-dipole,b_left) + np.dot(-dipole,b_right) #is this even in joules
 
-  
+
 min_energy = 0
 first_iteration = True
 best_location = (0,0,0)
@@ -71,7 +80,7 @@ for deg in np.linspace(DEGREES_LOWER_BOUND,DEGREES_UPPER_BOUND, num = int((DEGRE
     print(degreeToCoordinate(deg))
     
     (magnet_x,magnet_y,magnet_z) = degreeToCoordinate(deg)       
-    gravitational_potential_energy = PENDULUM_MASS*GRAVITY_ACCELERATION*magnet_z
+    gravitational_potential_energy = PENDULUM_MASS*GRAVITY_ACCELERATION*(magnet_z-HOVER_HEIGHT)
     kinetic_energy = 0
     magnetic_potential_energy = calculateMagneticPotentialEnergy(magnet_x,magnet_y,magnet_z)
     energy = gravitational_potential_energy+kinetic_energy+magnetic_potential_energy
@@ -104,6 +113,11 @@ print("lowest energy location:")
 print(best_location)
 print("best: gravity PE ",best_gravitational_potential_energy)
 print("best: magnetic PE ",best_magnetic_potential_energy)
+
+
+#debug
+#print(calculateMagneticPotentialEnergy(0.023465169756034628, 0, 0.03184674891072933))
+#print(calculateMagneticPotentialEnergy(0.025, 0, 0.03184674891072933))
 
 
 
