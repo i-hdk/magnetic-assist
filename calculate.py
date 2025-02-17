@@ -24,8 +24,8 @@ DEGREES_UPPER_BOUND = 90
 ITERATION_STEP = 5 #final should be around .1, big num for debug only
 
 def degreeToCoordinate (deg)->tuple:
-    x = math.sin(deg)*STRING_LENGTH
-    z = HOVER_HEIGHT+STRING_LENGTH-math.cos(deg)*STRING_LENGTH
+    x = math.sin(math.radians(deg))*STRING_LENGTH
+    z = HOVER_HEIGHT+STRING_LENGTH-math.cos(math.radians(deg))*STRING_LENGTH
     y = 0 #assuming one directional pendulum
     return (x,y,z)
 
