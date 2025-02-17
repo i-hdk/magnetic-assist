@@ -2,6 +2,7 @@
 #x axis is where the magnets are line up on, z is up down 
 import math
 import numpy as np
+import matplotlib.pyplot as plt
 
 PENDULUM_MASS = 0.001653 #kg, includes magnet + hanging mass
 STRING_LENGTH = 0.15 #m
@@ -56,18 +57,32 @@ best_location = (0,0,0)
 best_gravitational_potential_energy = 0
 best_magnetic_potential_energy = 0
 
+#plot out pendulum points
+plt.style.use('_mpl-gallery')
+fig, ax = plt.subplots()
+x_points = np.empty_like(np.linspace(DEGREES_LOWER_BOUND,DEGREES_UPPER_BOUND, num = int((DEGREES_UPPER_BOUND-DEGREES_LOWER_BOUND)/ITERATION_STEP)+1))
+y_points = np.empty_like(x_points) #actually z in calculations, y for simplicity (2d plotting)
+energy_points = np.empty_like(x_points)
+it = 0
+
 #iterate deg bc assuming one directional pendulum        
 for deg in np.linspace(DEGREES_LOWER_BOUND,DEGREES_UPPER_BOUND, num = int((DEGREES_UPPER_BOUND-DEGREES_LOWER_BOUND)/ITERATION_STEP)+1):
     print(deg)    
     print(degreeToCoordinate(deg))
     
-    (magnet_x,magnet_y,magnet_z) = degreeToCoordinate(deg)   
+    (magnet_x,magnet_y,magnet_z) = degreeToCoordinate(deg)       
     gravitational_potential_energy = PENDULUM_MASS*GRAVITY_ACCELERATION*magnet_z
     kinetic_energy = 0
     magnetic_potential_energy = calculateMagneticPotentialEnergy(magnet_x,magnet_y,magnet_z)
     energy = gravitational_potential_energy+kinetic_energy+magnetic_potential_energy
     print("gravity PE ",gravitational_potential_energy)
     print("magnetic PE ",magnetic_potential_energy)
+    
+    x_points[it] = magnet_x
+    y_points[it] = magnet_z
+    energy_points[it] = energy*2000 
+    it+=1
+    
     if first_iteration:
         min_energy = energy
         best_location = (magnet_x,magnet_y,magnet_z)
@@ -79,7 +94,12 @@ for deg in np.linspace(DEGREES_LOWER_BOUND,DEGREES_UPPER_BOUND, num = int((DEGRE
         best_location = (magnet_x,magnet_y,magnet_z)
         best_gravitational_potential_energy = gravitational_potential_energy
         best_magnetic_potential_energy = magnetic_potential_energy
-        
+    
+#plot
+ax.scatter(x_points, y_points, s=energy_points, c=energy_points, edgecolors=(0,0,0),linewidths=0.5)
+ax.set(xlim=(-0.15, 0.15),ylim=(0, 0.15))
+plt.show()
+
 print("lowest energy location:")
 print(best_location)
 print("best: gravity PE ",best_gravitational_potential_energy)
