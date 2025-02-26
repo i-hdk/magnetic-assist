@@ -5,13 +5,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 PENDULUM_MASS = 0.001653 #kg, includes magnet + hanging mass
-STRING_LENGTH = 0.15 #m
-HOVER_HEIGHT = 0.03 #m, height of magnet above ground when at rest & no magnets underneath
-GRAVITY_ACCELERATION = 9.81 #m/s^2
-DIPOLE_MOMENT = 1.2 #Am^2 guessed
-MAGNET_SIZE = 0.9 #cm
+STRING_LENGTH = 0.1 #m
+HOVER_HEIGHT = 0.05 #m, height of magnet above ground when at rest & no magnets underneath
+DIPOLE_MOMENT = 0.09 #Am^2 
+BASE_DIPOLE_MOMENT = 1.81
+MAGNET_DISTANCE_FROM_ORIGIN = 0.05 #m
+
+GRAVITY_ACCELERATION = 9.81 #m/s^2s
 MU_NAUGHT = 4*math.pi*1e-7 
-MAGNET_DISTANCE_FROM_ORIGIN = 0.025 #m
+MAGNET_SIZE = 0.9 #cm
+
 
 #iteration constants (cm)
 X_LOWER_BOUND = -10
@@ -22,7 +25,7 @@ Z_LOWER_BOUND = 0
 Z_UPPER_BOUND = 25
 DEGREES_LOWER_BOUND = -90 #left (towards -x side) and 0 points to the bottom middle
 DEGREES_UPPER_BOUND = 90
-ITERATION_STEP = 1 #final should be around .1, big num for debug only
+ITERATION_STEP = 0.1 #final should be around .1, big num for debug only
 
 def normalize(v):
     norm = np.linalg.norm(v)
@@ -51,9 +54,9 @@ def calculateMagneticField(mx,my,mz,r)->np.ndarray:
     return MU_NAUGHT/(4*math.pi)*(3*np.dot(m,normalize(r))*normalize(r)-m)/(np.linalg.norm(r)**3)
 
 def calculateMagneticPotentialEnergy (x,y,z)->float:
-    b_left = calculateMagneticField(0,0,DIPOLE_MOMENT,calculateR(-MAGNET_DISTANCE_FROM_ORIGIN,0,0,x,y,z))
+    b_left = calculateMagneticField(0,0,BASE_DIPOLE_MOMENT,calculateR(-MAGNET_DISTANCE_FROM_ORIGIN,0,0,x,y,z))
     #print("left magnet field",b_left)
-    b_right = calculateMagneticField(0,0,DIPOLE_MOMENT,calculateR(MAGNET_DISTANCE_FROM_ORIGIN,0,0,x,y,z))
+    b_right = calculateMagneticField(0,0,BASE_DIPOLE_MOMENT,calculateR(MAGNET_DISTANCE_FROM_ORIGIN,0,0,x,y,z))
     #print("right magnet field",b_right)
     #print("r", calculateR(MAGNET_DISTANCE_FROM_ORIGIN,0,0,x,y,z))
     dipole = calculateDipole(x,y,z)
